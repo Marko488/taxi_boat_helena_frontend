@@ -81,7 +81,6 @@ onMounted(() => {
 
 <template>
   <section class="space-y-8">
-    <!-- NASLOV SEKCIJE -->
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
       <div>
         <p class="text-sm uppercase tracking-[0.2em] text-sky-700 font-semibold mb-2">
@@ -97,7 +96,6 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- FILTER KARTICA -->
     <div class="bg-white rounded-[28px] border border-slate-200 shadow-sm p-5 md:p-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
@@ -139,7 +137,6 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- LOADING -->
     <div
       v-if="loading"
       class="bg-white rounded-[28px] border border-slate-200 shadow-sm p-6 text-slate-600"
@@ -147,7 +144,6 @@ onMounted(() => {
       Učitavanje polazaka...
     </div>
 
-    <!-- ERROR -->
     <div
       v-else-if="errorMessage"
       class="bg-red-50 text-red-700 border border-red-200 rounded-[28px] p-5"
@@ -155,7 +151,6 @@ onMounted(() => {
       {{ errorMessage }}
     </div>
 
-    <!-- EMPTY -->
     <div
       v-else-if="departures.length === 0"
       class="bg-white rounded-[28px] border border-slate-200 shadow-sm p-6 text-slate-600"
@@ -163,14 +158,12 @@ onMounted(() => {
       Nema dostupnih polazaka za odabrane filtere.
     </div>
 
-    <!-- GRID PRIKAZ -->
     <div v-else class="space-y-8">
       <div
         v-for="(deps, date) in groupedDepartures"
         :key="date"
         class="bg-white rounded-[28px] border border-slate-200 shadow-sm p-5 md:p-6"
       >
-        <!-- HEADER DANA -->
         <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
           <div>
             <p class="text-sm text-slate-500 mb-1">Datum polazaka</p>
@@ -185,7 +178,6 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- GRID TERMINA -->
         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
           <button
             v-for="dep in deps"
@@ -199,18 +191,15 @@ onMounted(() => {
                 : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
             "
           >
-            <!-- STATUS DOT -->
             <span
               class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full"
               :class="dep.available_seats > 0 ? 'bg-green-500' : 'bg-red-400'"
             ></span>
 
-            <!-- VRIJEME -->
             <div class="text-base md:text-lg font-bold">
               {{ dep.departure_time }}
             </div>
 
-            <!-- RUTA -->
             <div
               class="text-[11px] mt-1 leading-4"
               :class="dep.available_seats > 0 ? 'text-slate-500 group-hover:text-white/80' : ''"
@@ -218,7 +207,6 @@ onMounted(() => {
               {{ dep.from_location }} → {{ dep.to_location }}
             </div>
 
-            <!-- MJESTA -->
             <div
               class="text-[11px] mt-2 font-medium"
               :class="dep.available_seats > 0 ? 'text-slate-500 group-hover:text-white/80' : ''"
@@ -228,7 +216,6 @@ onMounted(() => {
           </button>
         </div>
 
-        <!-- MINI INFO ISPOD -->
         <div class="mt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <p class="text-sm text-slate-500">
             Polasci se odvijaju paralelno iz obje lokacije svakih 10 minuta.
