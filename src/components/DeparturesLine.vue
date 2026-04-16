@@ -7,8 +7,7 @@ const loading = ref(false)
 const errorMessage = ref('')
 
 const danasnjiDatum = () => {
-  const danas = new Date()
-  return danas.toISOString().split('T')[0]
+  return new Date().toLocaleDateString('sv-SE')
 }
 
 const filters = ref({
@@ -20,7 +19,7 @@ const groupedDepartures = computed(() => {
   const groups = {}
 
   departures.value.forEach((dep) => {
-    const date = String(dep.departure_date).split('T')[0]
+    const date = String(dep.departure_date)
 
     if (!groups[date]) {
       groups[date] = []
@@ -64,10 +63,10 @@ const dohvatiPolaske = async () => {
   }
 }
 
-const ocistiFiltere = async () => {
+const ocistiFiltere = () => {
   filters.value.date = danasnjiDatum()
   filters.value.from = ''
-  await dohvatiPolaske()
+  dohvatiPolaske()
 }
 
 const odaberiPolazak = (dep) => {
