@@ -6,6 +6,8 @@ const departures = ref([])
 const loading = ref(false)
 const errorMessage = ref('')
 
+const email = ref('')
+
 const selectedDeparture = ref(null)
 const showModal = ref(false)
 
@@ -84,9 +86,18 @@ const ocistiFiltere = () => {
 }
 
 const odaberiPolazak = (dep) => {
+  const prosaoJe = new Date(`${dep.departure_date}T${dep.departure_time}`) < new Date()
+
+  if (prosaoJe) {
+    errorMessage.value = 'Ovaj polazak je već prošao.'
+    return
+  }
+
+  errorMessage.value = ''
   selectedDeparture.value = dep
   adults.value = 1
   children.value = 0
+  email.value = ''
   reservationMessage.value = ''
   reservationError.value = ''
   reservationCode.value = ''
@@ -98,6 +109,7 @@ const zatvoriModal = () => {
   selectedDeparture.value = null
   adults.value = 1
   children.value = 0
+  email.value = ''
   reservationMessage.value = ''
   reservationError.value = ''
   reservationCode.value = ''
@@ -112,6 +124,18 @@ const rezerviraj = async () => {
 
     if (!selectedDeparture.value) {
       reservationError.value = 'Nijedan polazak nije odabran.'
+      return
+    }
+
+    if (!email.value) {
+      reservationError.value = 'Email je obavezan.'
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!emailRegex.test(email.value)) {
+      reservationError.value = 'Unesite ispravnu email adresu.'
       return
     }
 
@@ -135,6 +159,9 @@ const rezerviraj = async () => {
       user_id: 1,
       adults_count: Number(adults.value),
       children_count: Number(children.value),
+      email: email.value,
+      from_location: selectedDeparture.value.from_location,
+      to_location: selectedDeparture.value.to_location,
     })
 
     reservationMessage.value = response.data.message || 'Rezervacija je uspješna.'
@@ -146,6 +173,42 @@ const rezerviraj = async () => {
       error.response?.data?.message || 'Došlo je do greške prilikom rezervacije.'
   } finally {
     reservationLoading.value = false
+  }
+}
+
+const formatirajDatum = (datum) => {
+  if (!datum) return ''
+
+  const d = new Date(datum)
+
+  if (Number.isNaN(d.getTime())) {
+    return datum
+  }
+
+  return d.toLocaleDateString('hr-HR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
+const povecajAdults = () => {
+  adults.value = Number(adults.value) + 1
+}
+
+const smanjiAdults = () => {
+  if (Number(adults.value) > 1) {
+    adults.value = Number(adults.value) - 1
+  }
+}
+
+const povecajChildren = () => {
+  children.value = Number(children.value) + 1
+}
+
+const smanjiChildren = () => {
+  if (Number(children.value) > 0) {
+    children.value = Number(children.value) - 1
   }
 }
 
@@ -232,14 +295,22 @@ onMounted(() => {
             :disabled="dep.available_seats === 0"
             class="group relative rounded-2xl border p-3.5 text-center transition-all duration-300"
             :class="
-              dep.available_seats > 0
-                ? 'bg-white border-slate-200 hover:bg-sky-600 hover:text-white hover:shadow-xl hover:-translate-y-1 hover:scale-[1.03]'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              new Date(dep.departure_date + 'T' + dep.departure_time) < new Date()
+                ? 'bg-amber-50 border-amber-200 text-amber-700'
+                : dep.available_seats > 0
+                  ? 'bg-white border-slate-200 hover:bg-sky-600 hover:text-white hover:shadow-xl hover:-translate-y-1 hover:scale-[1.03]'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
             "
           >
             <span
               class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full"
-              :class="dep.available_seats > 0 ? 'bg-green-500' : 'bg-red-400'"
+              :class="
+                new Date(dep.departure_date + 'T' + dep.departure_time) < new Date()
+                  ? 'bg-amber-500'
+                  : dep.available_seats > 0
+                    ? 'bg-green-500'
+                    : 'bg-red-400'
+              "
             ></span>
 
             <div class="text-lg md:text-xl font-bold">
@@ -250,7 +321,15 @@ onMounted(() => {
               {{ dep.from_location }} → {{ dep.to_location }}
             </div>
 
-            <div class="text-xs md:text-sm mt-2 font-medium">{{ dep.available_seats }} mjesta</div>
+            <div class="text-xs md:text-sm mt-2 font-medium">
+              {{
+                new Date(dep.departure_date + 'T' + dep.departure_time) < new Date()
+                  ? 'Polazak je prošao'
+                  : dep.available_seats === 0
+                    ? 'Popunjeno'
+                    : `${dep.available_seats} mjesta`
+              }}
+            </div>
           </button>
         </div>
 
@@ -273,117 +352,303 @@ onMounted(() => {
         </div>
       </div>
     </div>
-
     <!-- MODAL -->
     <div
       v-if="showModal && selectedDeparture"
-      class="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center px-4"
+      class="fixed inset-0 z-[100] bg-slate-950/75 backdrop-blur-md flex items-center justify-center px-3 sm:px-4 py-4 sm:py-6 overflow-y-auto"
     >
       <div
-        class="w-full max-w-md bg-white rounded-[30px] shadow-2xl border border-slate-200 overflow-hidden"
+        class="relative w-full max-w-2xl bg-white rounded-[26px] sm:rounded-[32px] border border-white/70 shadow-[0_24px_80px_rgba(15,23,42,0.35)] overflow-hidden max-h-[94vh] flex flex-col"
       >
-        <div class="h-1.5 w-full bg-gradient-to-r from-sky-500 via-sky-400 to-cyan-300"></div>
+        <!-- top glow -->
+        <div class="h-1.5 w-full bg-gradient-to-r from-sky-600 via-cyan-400 to-blue-300"></div>
 
-        <div class="p-6">
-          <div class="flex items-start justify-between gap-4 mb-5">
-            <div>
-              <p class="text-sm uppercase tracking-[0.18em] text-sky-700 font-semibold mb-2">
-                Rezervacija polaska
-              </p>
-              <h3 class="text-2xl font-bold text-slate-900">
-                {{ selectedDeparture.departure_time }}
-              </h3>
-              <p class="text-slate-600 mt-2">
-                {{ selectedDeparture.from_location }} → {{ selectedDeparture.to_location }}
-              </p>
-            </div>
+        <!-- close -->
+        <button
+          @click="zatvoriModal"
+          class="absolute top-4 right-4 z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-white transition shadow-sm flex items-center justify-center"
+        >
+          <span class="text-2xl leading-none">×</span>
+        </button>
 
-            <button
-              @click="zatvoriModal"
-              class="text-slate-400 hover:text-slate-700 text-2xl leading-none"
+        <!-- header -->
+        <div class="px-5 sm:px-7 lg:px-8 pt-6 sm:pt-7 pb-5 border-b border-slate-100">
+          <div class="pr-12">
+            <p
+              class="text-[11px] sm:text-xs uppercase tracking-[0.24em] text-sky-700 font-bold mb-3"
             >
-              ×
-            </button>
-          </div>
+              Rezervacija taxi line
+            </p>
 
-          <div
-            v-if="!reservationMessage"
-            class="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-5"
-          >
-            <div class="flex items-center justify-between gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <p class="text-sm text-slate-500 mb-1">Dostupno mjesta</p>
-                <p class="font-semibold text-slate-900">{{ selectedDeparture.available_seats }}</p>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <h3
+                    class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-none"
+                  >
+                    {{ selectedDeparture.departure_time }}
+                  </h3>
+
+                  <span
+                    class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold border"
+                    :class="
+                      selectedDeparture.available_seats > 0
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-red-50 text-red-700 border-red-200'
+                    "
+                  >
+                    <span
+                      class="w-2 h-2 rounded-full"
+                      :class="
+                        selectedDeparture.available_seats > 0 ? 'bg-emerald-500' : 'bg-red-500'
+                      "
+                    ></span>
+                    {{ selectedDeparture.available_seats > 0 ? 'Dostupno' : 'Popunjeno' }}
+                  </span>
+                </div>
+
+                <p class="text-slate-600 mt-3 text-sm sm:text-base font-medium break-words">
+                  {{ selectedDeparture.from_location }} → {{ selectedDeparture.to_location }}
+                </p>
               </div>
 
-              <div class="text-right">
-                <p class="text-sm text-slate-500 mb-1">Datum</p>
-                <p class="font-semibold text-slate-900">{{ selectedDeparture.departure_date }}</p>
+              <div
+                class="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 to-cyan-50 px-4 py-3 shadow-sm min-w-[180px]"
+              >
+                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-1">
+                  Datum polaska
+                </p>
+                <p class="text-lg sm:text-xl font-bold text-slate-900">
+                  {{ formatirajDatum(selectedDeparture.departure_date) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- body -->
+        <div class="px-5 sm:px-7 lg:px-8 py-5 sm:py-6 overflow-y-auto">
+          <div v-if="!reservationMessage" class="space-y-5">
+            <!-- top cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              <!-- email -->
+              <div
+                class="lg:col-span-3 rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 sm:p-5 shadow-sm"
+              >
+                <div class="flex items-center gap-2 mb-3">
+                  <div
+                    class="w-9 h-9 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold"
+                  >
+                    @
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-slate-900">Email adresa</p>
+                    <p class="text-xs text-slate-500">Na ovu adresu stiže potvrda rezervacije</p>
+                  </div>
+                </div>
+
+                <input
+                  v-model="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="npr. ivan@gmail.com"
+                  class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none transition"
+                />
+              </div>
+
+              <!-- seats -->
+              <div
+                class="lg:col-span-2 rounded-[24px] border border-slate-200 bg-slate-50 p-4 sm:p-5 shadow-sm"
+              >
+                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-2">
+                  Dostupno mjesta
+                </p>
+                <p class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">
+                  {{ selectedDeparture.available_seats }}
+                </p>
+              </div>
+            </div>
+
+            <!-- counters -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- adults -->
+              <div class="rounded-[24px] border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+                <div class="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <p class="text-base font-bold text-slate-900">Odrasli</p>
+                    <p class="text-sm text-slate-500">Barem 1 odrasla osoba je obavezna</p>
+                  </div>
+                  <div
+                    class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold border border-slate-200"
+                  >
+                    4 € / osoba
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    @click="smanjiAdults"
+                    class="w-12 h-12 rounded-2xl border border-slate-300 bg-white text-2xl text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+                    :disabled="Number(adults) <= 1"
+                  >
+                    −
+                  </button>
+
+                  <div class="flex-1 text-center">
+                    <div class="text-3xl font-black text-slate-900">{{ adults }}</div>
+                    <div
+                      class="text-xs uppercase tracking-[0.14em] text-slate-400 font-semibold mt-1"
+                    >
+                      putnika
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    @click="povecajAdults"
+                    class="w-12 h-12 rounded-2xl border border-slate-300 bg-white text-2xl text-slate-700 hover:bg-slate-50 transition"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <!-- children -->
+              <div class="rounded-[24px] border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+                <div class="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <p class="text-base font-bold text-slate-900">Djeca 6 – 12</p>
+                    <p class="text-sm text-slate-500">Dodaj dječje karte ako trebaju</p>
+                  </div>
+                  <div
+                    class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold border border-slate-200"
+                  >
+                    2 € / dijete
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    @click="smanjiChildren"
+                    class="w-12 h-12 rounded-2xl border border-slate-300 bg-white text-2xl text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+                    :disabled="Number(children) <= 0"
+                  >
+                    −
+                  </button>
+
+                  <div class="flex-1 text-center">
+                    <div class="text-3xl font-black text-slate-900">{{ children }}</div>
+                    <div
+                      class="text-xs uppercase tracking-[0.14em] text-slate-400 font-semibold mt-1"
+                    >
+                      putnika
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    @click="povecajChildren"
+                    class="w-12 h-12 rounded-2xl border border-slate-300 bg-white text-2xl text-slate-700 hover:bg-slate-50 transition"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- summary -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-4 sm:p-5 shadow-sm">
+                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-2">
+                  Ukupno mjesta
+                </p>
+                <p class="text-3xl font-black tracking-tight text-slate-900">
+                  {{ totalSeats }}
+                </p>
+              </div>
+
+              <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-4 sm:p-5 shadow-sm">
+                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-2">
+                  Ruta
+                </p>
+                <p class="text-sm sm:text-base font-bold text-slate-900 break-words">
+                  {{ selectedDeparture.from_location }} → {{ selectedDeparture.to_location }}
+                </p>
+              </div>
+
+              <div
+                class="rounded-[24px] border border-sky-200 bg-gradient-to-br from-sky-50 via-cyan-50 to-white p-4 sm:p-5 shadow-sm"
+              >
+                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-2">
+                  Ukupna cijena
+                </p>
+                <p class="text-4xl sm:text-5xl font-black tracking-tight text-sky-700">
+                  {{ totalPrice }} €
+                </p>
               </div>
             </div>
           </div>
 
-          <div v-if="!reservationMessage" class="space-y-4">
-            <div>
-              <label class="block text-sm font-semibold mb-2 text-slate-700">Odrasli</label>
-              <input
-                v-model="adults"
-                type="number"
-                min="1"
-                class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
-              />
-              <p class="text-xs text-slate-500 mt-2">Obavezno je odabrati barem 1 odraslu osobu.</p>
-            </div>
-
-            <div>
-              <label class="block text-sm font-semibold mb-2 text-slate-700">Djeca 6 – 12</label>
-              <input
-                v-model="children"
-                type="number"
-                min="0"
-                class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
-              />
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
-                <p class="text-sm text-slate-500 mb-1">Ukupno mjesta</p>
-                <p class="text-xl font-bold text-slate-900">{{ totalSeats }}</p>
-              </div>
-
-              <div class="rounded-2xl bg-sky-50 border border-sky-200 p-4">
-                <p class="text-sm text-slate-500 mb-1">Ukupna cijena</p>
-                <p class="text-2xl font-bold text-sky-700">{{ totalPrice }} €</p>
-              </div>
-            </div>
-          </div>
-
+          <!-- success -->
           <div
             v-if="reservationMessage"
-            class="rounded-2xl bg-green-50 border border-green-200 p-5 text-center mb-4"
+            class="rounded-[28px] bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 p-5 sm:p-7 text-center shadow-sm"
           >
-            <div class="text-3xl mb-2">✅</div>
-            <p class="font-semibold text-green-700 mb-1">Rezervacija uspješna!</p>
-            <p class="text-sm text-green-700">{{ reservationMessage }}</p>
-            <p class="text-sm text-green-700 mt-2">Vidimo se na polasku! Spremite fotoaparat 📸</p>
-            <p v-if="reservationCode" class="text-sm text-green-700 mt-2">
-              Kod rezervacije: <span class="font-semibold">{{ reservationCode }}</span>
+            <div
+              class="w-16 h-16 mx-auto mb-4 rounded-full bg-white border border-emerald-200 flex items-center justify-center text-3xl shadow-sm"
+            >
+              ✅
+            </div>
+
+            <p class="text-xl sm:text-2xl font-black text-emerald-800 mb-2">
+              Rezervacija uspješna!
             </p>
+
+            <p class="text-sm sm:text-base text-emerald-700">
+              {{ reservationMessage }}
+            </p>
+
+            <p class="text-sm text-emerald-700 mt-3">Plaćanje se izvršava gotovinom na polasku.</p>
+
+            <p class="text-sm text-emerald-700 mt-2">
+              Pripremite fotoaparat 📸 vidimo se na polasku i uživajte u doživljaju!
+            </p>
+
+            <div
+              v-if="reservationCode"
+              class="mt-5 inline-flex items-center rounded-2xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-800 shadow-sm"
+            >
+              Kod rezervacije: {{ reservationCode }}
+            </div>
           </div>
 
+          <!-- error -->
           <div
             v-if="reservationError"
-            class="rounded-2xl bg-red-50 border border-red-200 text-red-700 p-4 text-sm mb-4"
+            class="mt-4 rounded-[20px] border border-red-200 bg-red-50 px-4 py-3.5 text-sm font-medium text-red-700 shadow-sm"
           >
             {{ reservationError }}
           </div>
+        </div>
 
-          <div class="flex gap-3 pt-2">
+        <!-- footer -->
+        <div class="px-5 sm:px-7 lg:px-8 py-4 sm:py-5 border-t border-slate-100 bg-white">
+          <div class="flex flex-col-reverse sm:flex-row gap-3">
+            <button
+              v-if="!reservationMessage"
+              @click="zatvoriModal"
+              class="sm:w-auto rounded-2xl border border-slate-300 bg-white px-5 py-3.5 font-semibold text-slate-700 hover:bg-slate-50 transition"
+            >
+              Odustani
+            </button>
+
             <button
               v-if="!reservationMessage"
               @click="rezerviraj"
               :disabled="reservationLoading"
-              class="flex-1 rounded-2xl bg-sky-700 text-white px-5 py-3 font-semibold hover:bg-sky-800 transition disabled:opacity-60"
+              class="flex-1 rounded-2xl bg-gradient-to-r from-sky-700 to-sky-600 text-white px-5 py-3.5 font-semibold hover:from-sky-800 hover:to-sky-700 transition disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-sky-700/20"
             >
               {{ reservationLoading ? 'Spremanje...' : 'Potvrdi rezervaciju' }}
             </button>
@@ -391,17 +656,9 @@ onMounted(() => {
             <button
               v-else
               @click="zatvoriModal"
-              class="flex-1 rounded-2xl bg-green-600 text-white px-5 py-3 font-semibold hover:bg-green-700 transition"
+              class="flex-1 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-white px-5 py-3.5 font-semibold hover:from-emerald-700 hover:to-emerald-600 transition shadow-lg shadow-emerald-600/20"
             >
               Zatvori
-            </button>
-
-            <button
-              v-if="!reservationMessage"
-              @click="zatvoriModal"
-              class="rounded-2xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 hover:bg-slate-100 transition"
-            >
-              Odustani
             </button>
           </div>
         </div>
