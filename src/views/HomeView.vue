@@ -229,11 +229,12 @@ import { RouterLink } from 'vue-router'
                 <li>• opušteniji i osobniji doživljaj plovidbe</li>
               </ul>
 
-              <button
-                class="inline-flex items-center justify-center rounded-2xl bg-slate-800 text-white px-6 py-3 font-semibold opacity-70 cursor-not-allowed"
+              <RouterLink
+                to="/izleti"
+                class="inline-flex items-center justify-center rounded-2xl bg-slate-800 text-white px-6 py-3 font-semibold hover:bg-slate-900 transition"
               >
-                Više o izletima uskoro
-              </button>
+                Pogledaj gliser izlete
+              </RouterLink>
             </div>
           </div>
         </div>
