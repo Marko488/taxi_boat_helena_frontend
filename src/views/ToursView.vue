@@ -59,17 +59,6 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-900">
-    <!-- WHATSAPP -->
-    <a
-      :href="whatsappLink"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Pošalji poruku na WhatsApp"
-      class="fixed bottom-5 right-5 md:bottom-6 md:right-6 z-[9999] w-[68px] h-[68px] rounded-full bg-[#25D366] shadow-[0_12px_30px_rgba(0,0,0,0.35)] flex items-center justify-center hover:scale-110 transition-transform duration-300 animate-[bounce_3.4s_ease-in-out_infinite]"
-    >
-      <img src="/whatsapp.png" alt="WhatsApp" class="w-9 h-9 object-contain" />
-    </a>
-
     <!-- GORNJI PLAVI DIO -->
     <div class="bg-[#041b4d] text-white">
       <!-- HERO -->
@@ -563,7 +552,7 @@ onBeforeUnmount(() => {
       </section>
 
       <!-- CTA -->
-      <section id="kontakt1" class="pb-20 pt-6">
+      <section id="kontakt1" class="scroll-mt-50 pb-20 pt-6">
         <div class="max-w-6xl mx-auto px-4">
           <div
             class="relative overflow-hidden rounded-[42px] border border-slate-200 bg-white p-8 md:p-12 text-center shadow-[0_35px_100px_rgba(15,23,42,0.10)]"
