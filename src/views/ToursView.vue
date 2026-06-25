@@ -62,7 +62,7 @@ onBeforeUnmount(() => {
     <!-- GORNJI PLAVI DIO -->
     <div class="bg-[#041b4d] text-white">
       <!-- HERO -->
-      <section class="relative min-h-[125vh] flex items-center overflow-hidden">
+      <section class="relative min-h-[88vh] md:min-h-[125vh] flex items-center overflow-hidden">
         <!-- SLIKA -->
         <img
           src="/speedey-lubenice.jpg"
@@ -255,7 +255,7 @@ onBeforeUnmount(() => {
           class="grid xl:grid-cols-[1.02fr_1.08fr] gap-8 rounded-[34px] border border-slate-200 bg-white p-4 md:p-5 shadow-[0_25px_80px_rgba(15,23,42,0.08)]"
         >
           <!-- LIJEVO -->
-          <div class="flex flex-col h-full">
+          <div class="order-2 xl:order-1 flex flex-col h-full">
             <img
               :src="selectedLubeniceImage"
               alt="Lubenice gallery"
@@ -323,7 +323,7 @@ onBeforeUnmount(() => {
 
           <!-- DESNO -->
           <div
-            class="flex flex-col h-full rounded-[26px] bg-[#f8fbff] border border-slate-200 p-5 md:p-6"
+            class="order-1 xl:order-2 flex flex-col h-full rounded-[26px] bg-[#f8fbff] border border-slate-200 p-5 md:p-6"
           >
             <p class="text-sm uppercase tracking-[0.2em] text-sky-700 font-semibold mb-3">
               Gliser izlet
@@ -415,7 +415,7 @@ onBeforeUnmount(() => {
         >
           <!-- LIJEVO -->
           <div
-            class="order-2 xl:order-1 flex flex-col h-full rounded-[26px] bg-[#f8fbff] border border-slate-200 p-5 md:p-6"
+            class="order-1 xl:order-1 flex flex-col h-full rounded-[26px] bg-[#f8fbff] border border-slate-200 p-5 md:p-6"
           >
             <p class="text-sm uppercase tracking-[0.2em] text-sky-700 font-semibold mb-3">
               Gliser izlet
@@ -497,7 +497,7 @@ onBeforeUnmount(() => {
 
           <!-- DESNO -->
           <div
-            class="order-1 xl:order-2 bg-white rounded-[32px] border border-slate-200 p-5 shadow-sm h-full flex flex-col"
+            class="order-2 xl:order-2 bg-white rounded-[32px] border border-slate-200 p-5 shadow-sm h-full flex flex-col"
           >
             <img
               :src="selectedValunImage"

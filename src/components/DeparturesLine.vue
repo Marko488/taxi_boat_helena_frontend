@@ -287,7 +287,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
           <button
             v-for="dep in deps"
             :key="dep.id"

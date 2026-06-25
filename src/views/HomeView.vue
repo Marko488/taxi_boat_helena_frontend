@@ -101,7 +101,7 @@ import { RouterLink } from 'vue-router'
 
         <div class="relative">
           <img
-            src="/about-helena.jpg"
+            src="/dream_team.jpg"
             alt="Taxi Boat Helena na Cresu"
             class="w-full h-[420px] object-cover rounded-[32px] shadow-lg"
           />
