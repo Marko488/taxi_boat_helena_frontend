@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import DeparturesLineView from '../views/DeparturesLineView.vue'
 import ToursView from '../views/ToursView.vue'
+import AdminLoginView from '../views/admin/AdminLoginView.vue'
+import AdminLayout from '../components/admin/AdminLayout.vue'
+import AdminDeparturesView from '../views/admin/AdminDeparturesView.vue'
+import { auth } from '../stores/auth'
 
 const routes = [
   {
@@ -18,6 +22,24 @@ const routes = [
     path: '/izleti',
     name: 'izleti',
     component: ToursView,
+  },
+  {
+    path: '/admin/login',
+    name: 'admin-login',
+    component: AdminLoginView,
+  },
+  {
+    path: '/admin',
+    component: AdminLayout,
+    meta: { requiresAuth: true },
+    children: [
+      { path: '', redirect: '/admin/polasci' },
+      {
+        path: 'polasci',
+        name: 'admin-departures',
+        component: AdminDeparturesView,
+      },
+    ],
   },
 ]
 
@@ -40,6 +62,16 @@ const router = createRouter({
 
     return { top: 0, behavior: 'smooth' }
   },
+})
+
+// Zaštita admin ruta — ako nije prijavljen, preusmjeri na prijavu.
+router.beforeEach((to) => {
+  if (to.meta.requiresAuth && !auth.isLoggedIn) {
+    return { name: 'admin-login' }
+  }
+  if (to.name === 'admin-login' && auth.isLoggedIn) {
+    return { path: '/admin/polasci' }
+  }
 })
 
 export default router

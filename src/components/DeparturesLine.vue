@@ -51,6 +51,21 @@ const groupedDepartures = computed(() => {
 const totalSeats = computed(() => Number(adults.value) + Number(children.value))
 const totalPrice = computed(() => Number(adults.value) * 4 + Number(children.value) * 2)
 
+// Stanje polaska: otkazano (admin), popunjeno (nema mjesta) ili dostupno.
+const stanje = (dep) => {
+  if (dep.status === 'cancelled') return 'otkazano'
+  if (dep.status === 'full' || dep.available_seats <= 0) return 'popunjeno'
+  return 'dostupno'
+}
+
+const jeDostupan = (dep) => stanje(dep) === 'dostupno'
+
+const oznakaMjesta = (dep) => {
+  if (stanje(dep) === 'otkazano') return 'Otkazano'
+  if (stanje(dep) === 'popunjeno') return 'Popunjeno'
+  return `${dep.available_seats} mjesta`
+}
+
 const dohvatiPolaske = async () => {
   try {
     loading.value = true
@@ -292,24 +307,24 @@ onMounted(() => {
             v-for="dep in deps"
             :key="dep.id"
             @click="odaberiPolazak(dep)"
-            :disabled="dep.available_seats === 0"
+            :disabled="!jeDostupan(dep)"
             class="group relative rounded-2xl border p-3.5 text-center transition-all duration-300"
             :class="
-              new Date(dep.departure_date + 'T' + dep.departure_time) < new Date()
-                ? 'bg-amber-50 border-amber-200 text-amber-700'
-                : dep.available_seats > 0
-                  ? 'bg-white border-slate-200 hover:bg-sky-600 hover:text-white hover:shadow-xl hover:-translate-y-1 hover:scale-[1.03]'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              stanje(dep) === 'dostupno'
+                ? 'bg-white border-slate-200 hover:bg-sky-600 hover:text-white hover:shadow-xl hover:-translate-y-1 hover:scale-[1.03]'
+                : stanje(dep) === 'popunjeno'
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed line-through'
             "
           >
             <span
               class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full"
               :class="
-                new Date(dep.departure_date + 'T' + dep.departure_time) < new Date()
-                  ? 'bg-amber-500'
-                  : dep.available_seats > 0
-                    ? 'bg-green-500'
-                    : 'bg-red-400'
+                stanje(dep) === 'dostupno'
+                  ? 'bg-green-500'
+                  : stanje(dep) === 'popunjeno'
+                    ? 'bg-red-400'
+                    : 'bg-slate-400'
               "
             ></span>
 
@@ -322,13 +337,7 @@ onMounted(() => {
             </div>
 
             <div class="text-xs md:text-sm mt-2 font-medium">
-              {{
-                new Date(dep.departure_date + 'T' + dep.departure_time) < new Date()
-                  ? 'Polazak je prošao'
-                  : dep.available_seats === 0
-                    ? 'Popunjeno'
-                    : `${dep.available_seats} mjesta`
-              }}
+              {{ oznakaMjesta(dep) }}
             </div>
           </button>
         </div>
@@ -347,6 +356,10 @@ onMounted(() => {
             <span class="inline-flex items-center gap-2 ml-4">
               <span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span>
               popunjeno
+            </span>
+            <span class="inline-flex items-center gap-2 ml-4">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
+              otkazano
             </span>
           </div>
         </div>

@@ -241,50 +241,6 @@ import { RouterLink } from 'vue-router'
       </div>
     </section>
 
-    <!-- KAKO FUNKCIONIRA -->
-    <section class="max-w-6xl mx-auto px-4 py-16">
-      <div class="text-center mb-12">
-        <p class="text-sm uppercase tracking-[0.2em] text-sky-700 font-semibold mb-3">
-          Rezervacija vožnje
-        </p>
-
-        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          Rezervirajte svoju vožnju jednostavno
-        </h2>
-
-        <p class="text-slate-600 max-w-2xl mx-auto leading-7">
-          Večernju taxi boat vožnju možete odabrati kroz jasan pregled termina, datuma i slobodnih
-          mjesta.
-        </p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-          <div class="text-3xl mb-4">1️⃣</div>
-          <h3 class="text-lg font-bold mb-3">Odaberi datum i polazište</h3>
-          <p class="text-sm text-slate-600 leading-7">
-            Pregledaj raspoložive polaske za željeni dan i lokaciju s koje želiš krenuti.
-          </p>
-        </div>
-
-        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-          <div class="text-3xl mb-4">2️⃣</div>
-          <h3 class="text-lg font-bold mb-3">Pregledaj termine</h3>
-          <p class="text-sm text-slate-600 leading-7">
-            Jasan prikaz vremena polaska i broja slobodnih mjesta omogućuje brz odabir vožnje.
-          </p>
-        </div>
-
-        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-          <div class="text-3xl mb-4">3️⃣</div>
-          <h3 class="text-lg font-bold mb-3">Rezerviraj mjesto</h3>
-          <p class="text-sm text-slate-600 leading-7">
-            Odaberi polazak koji ti odgovara i potvrdi rezervaciju za večernju plovidbu.
-          </p>
-        </div>
-      </div>
-    </section>
-
     <!-- ABOUT / TRUST -->
     <section class="bg-slate-950 text-slate-200 py-16">
       <div class="max-w-6xl mx-auto px-4">

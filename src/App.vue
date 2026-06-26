@@ -1,19 +1,26 @@
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import Header from './components/Header.vue'
 import FooterSection from './components/FooterSection.vue'
 import { RouterView } from 'vue-router'
+
+const route = useRoute()
+// Na admin stranicama sakrij javni header, footer i WhatsApp gumb.
+const isAdmin = computed(() => route.path.startsWith('/admin'))
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col overflow-x-clip bg-slate-50 text-slate-800">
-    <Header />
+    <Header v-if="!isAdmin" />
 
     <main class="flex-1">
       <RouterView />
     </main>
 
-    <FooterSection />
+    <FooterSection v-if="!isAdmin" />
     <a
+      v-if="!isAdmin"
       href="https://api.whatsapp.com/send?phone=385915121829"
       target="_blank"
       rel="noopener noreferrer"
