@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import DeparturesLineView from '../views/DeparturesLineView.vue'
 import ToursView from '../views/ToursView.vue'
+import CancelReservationView from '../views/CancelReservationView.vue'
 import AdminLoginView from '../views/admin/AdminLoginView.vue'
 import AdminLayout from '../components/admin/AdminLayout.vue'
 import AdminDeparturesView from '../views/admin/AdminDeparturesView.vue'
@@ -23,6 +24,11 @@ const routes = [
     path: '/izleti',
     name: 'izleti',
     component: ToursView,
+  },
+  {
+    path: '/otkazi',
+    name: 'cancel-reservation',
+    component: CancelReservationView,
   },
   {
     path: '/admin/login',

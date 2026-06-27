@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import axios from 'axios'
 
 const departures = ref([])
@@ -669,6 +670,12 @@ onMounted(() => {
             >
               Kod rezervacije: {{ reservationCode }}
             </div>
+
+            <p class="text-sm text-emerald-700 mt-4">
+              Trebate otkazati?
+              <RouterLink to="/otkazi" class="font-semibold underline">Otkažite rezervaciju</RouterLink>
+              uz kod iznad.
+            </p>
           </div>
 
           <!-- error -->
