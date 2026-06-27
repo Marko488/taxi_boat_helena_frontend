@@ -5,6 +5,7 @@ import ToursView from '../views/ToursView.vue'
 import AdminLoginView from '../views/admin/AdminLoginView.vue'
 import AdminLayout from '../components/admin/AdminLayout.vue'
 import AdminDeparturesView from '../views/admin/AdminDeparturesView.vue'
+import AdminReservationsView from '../views/admin/AdminReservationsView.vue'
 import { auth } from '../stores/auth'
 
 const routes = [
@@ -38,6 +39,11 @@ const routes = [
         path: 'polasci',
         name: 'admin-departures',
         component: AdminDeparturesView,
+      },
+      {
+        path: 'rezervacije',
+        name: 'admin-reservations',
+        component: AdminReservationsView,
       },
     ],
   },

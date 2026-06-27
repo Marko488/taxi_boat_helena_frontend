@@ -7,6 +7,7 @@ const loading = ref(false)
 const errorMessage = ref('')
 
 const email = ref('')
+const name = ref('')
 
 const selectedDeparture = ref(null)
 const showModal = ref(false)
@@ -113,6 +114,7 @@ const odaberiPolazak = (dep) => {
   adults.value = 1
   children.value = 0
   email.value = ''
+  name.value = ''
   reservationMessage.value = ''
   reservationError.value = ''
   reservationCode.value = ''
@@ -125,6 +127,7 @@ const zatvoriModal = () => {
   adults.value = 1
   children.value = 0
   email.value = ''
+  name.value = ''
   reservationMessage.value = ''
   reservationError.value = ''
   reservationCode.value = ''
@@ -139,6 +142,11 @@ const rezerviraj = async () => {
 
     if (!selectedDeparture.value) {
       reservationError.value = 'Nijedan polazak nije odabran.'
+      return
+    }
+
+    if (!name.value || name.value.trim().length < 2) {
+      reservationError.value = 'Unesite ime i prezime.'
       return
     }
 
@@ -174,6 +182,7 @@ const rezerviraj = async () => {
       user_id: 1,
       adults_count: Number(adults.value),
       children_count: Number(children.value),
+      name: name.value,
       email: email.value,
       from_location: selectedDeparture.value.from_location,
       to_location: selectedDeparture.value.to_location,
@@ -442,6 +451,31 @@ onMounted(() => {
         <!-- body -->
         <div class="px-5 sm:px-7 lg:px-8 py-5 sm:py-6 overflow-y-auto">
           <div v-if="!reservationMessage" class="space-y-5">
+            <!-- ime i prezime -->
+            <div
+              class="rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 sm:p-5 shadow-sm"
+            >
+              <div class="flex items-center gap-2 mb-3">
+                <div
+                  class="w-9 h-9 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold"
+                >
+                  👤
+                </div>
+                <div>
+                  <p class="text-sm font-bold text-slate-900">Ime i prezime</p>
+                  <p class="text-xs text-slate-500">Na koga glasi rezervacija</p>
+                </div>
+              </div>
+
+              <input
+                v-model="name"
+                type="text"
+                autocomplete="name"
+                placeholder="npr. Ivan Horvat"
+                class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none transition"
+              />
+            </div>
+
             <!-- top cards -->
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
               <!-- email -->
