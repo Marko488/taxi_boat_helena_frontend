@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import axios from 'axios'
+import api from '../services/api'
 
 const route = useRoute()
 
@@ -27,7 +27,7 @@ const otkazi = async () => {
 
   try {
     loading.value = true
-    const res = await axios.post('http://localhost:3000/line-reservations/cancel-by-code', {
+    const res = await api.post('/line-reservations/cancel-by-code', {
       reservation_code: code.value.trim(),
     })
     successMessage.value = res.data.message || 'Rezervacija je otkazana.'

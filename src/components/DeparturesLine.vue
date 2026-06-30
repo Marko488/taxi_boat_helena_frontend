@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import axios from 'axios'
+import api from '../services/api'
 
 const departures = ref([])
 const loading = ref(false)
@@ -83,7 +83,7 @@ const dohvatiPolaske = async () => {
       queryParams.from = filters.value.from
     }
 
-    const response = await axios.get('http://localhost:3000/line-departures', {
+    const response = await api.get('/line-departures', {
       params: queryParams,
     })
 
@@ -178,7 +178,7 @@ const rezerviraj = async () => {
       return
     }
 
-    const response = await axios.post('http://localhost:3000/line-reservations', {
+    const response = await api.post('/line-reservations', {
       line_departure_id: selectedDeparture.value.id,
       user_id: 1,
       adults_count: Number(adults.value),
